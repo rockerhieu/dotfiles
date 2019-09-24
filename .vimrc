@@ -104,3 +104,6 @@ if has("autocmd")
 	" Treat .md files as Markdown
 	autocmd BufNewFile,BufRead *.md setlocal filetype=markdown
 endif
+
+" Map jj to Esc key
+:imap jj <Esc>

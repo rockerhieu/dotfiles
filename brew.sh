@@ -44,6 +44,8 @@ brew install vim -- --with-override-system-vi
 brew install grep
 brew install openssh
 brew install tmux
+# makes pbcopy and pbpaste work again within tmux
+brew install reattach-to-user-namespace
 #brew install php
 brew install gmp
 
