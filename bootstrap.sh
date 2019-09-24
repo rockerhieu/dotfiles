@@ -4,24 +4,25 @@ cd "$(dirname "${BASH_SOURCE}")";
 
 git pull origin master;
 
-function doIt() {
-	rsync --exclude ".git/" \
-		--exclude ".DS_Store" \
-		--exclude ".osx" \
-		--exclude "bootstrap.sh" \
-		--exclude "README.md" \
-		--exclude "LICENSE-MIT.txt" \
-		-avh --no-perms . ~;
-	source ~/.bash_profile;
-}
+current_dir=$(pwd)
 
-if [ "$1" == "--force" -o "$1" == "-f" ]; then
-	doIt;
-else
-	read -p "This may overwrite existing files in your home directory. Are you sure? (y/n) " -n 1;
-	echo "";
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		doIt;
-	fi;
-fi;
-unset doIt;
+for file in \.*
+do
+	if [[ ("$file" = ".DS_Store") || ("$file" = ".") || ("$file" = "..") ]]; then
+		echo "Skip $file"
+	else
+		if [[ ! -f "~/$file" ]]; then
+			ln -s -f "$current_dir/$file" ~
+			echo "$current_dir/$file -> ~/$file"
+		else
+			read -p "~/$file exists, do you want to override it? (y/n) " -n 1;
+			echo "";
+			if [[ $REPLY =~ ^[Yy]$ ]]; then
+				ln -s -f "$current_dir/$file" ~
+				echo "$current_dir/$file -> ~/$file"
+			fi;
+		fi
+	fi
+done
+
+unset current_dir
