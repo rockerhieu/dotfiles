@@ -109,7 +109,7 @@ brew cask install sourcetree
 brew cask install android-studio
 brew cask install spotify
 brew cask install visual-studio-code
-brew cask install utorrent
+brew cask install transmission
 brew cask install vlc
 brew cask install appcleaner
 brew cask install tunnelblick
