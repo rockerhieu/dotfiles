@@ -116,6 +116,7 @@ brew cask install tunnelblick
 brew cask install musescore
 brew cask install folx
 brew cask install caffeine
+brew cask install openkey
 
 # Install Android SDK
 brew install android-sdk
