@@ -294,3 +294,6 @@ set -g mouse on
 
 # move status line to top
 #set -g status-position top
+
+# enable skipping words using ctrl + arrow
+set-window-option -g xterm-keys on
