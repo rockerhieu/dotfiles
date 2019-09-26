@@ -36,3 +36,6 @@ export ANDROID_HOME="/usr/local/share/android-sdk"
 
 # Android NDK
 export ANDROID_NDK_HOME="/usr/local/share/android-ndk"
+
+# Flutter SDK
+export FLUTTER_HOME="/usr/local/share/flutter"
