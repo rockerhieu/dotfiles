@@ -20,3 +20,13 @@ function adbfb() {
 function adb_dump() {
 	adb shell dumpsys package $1 | grep ${2-versionName}
 }
+
+function logcat() {
+    if [ $# -eq 1 ]; then
+        __logcat_pid__=$(adb shell "pidof -s $1")
+        adb shell "logcat --pid=$__logcat_pid__"
+    else
+        >&2 echo "Usage: logcat PACKAGE_NAME"
+        return 1
+    fi
+}
