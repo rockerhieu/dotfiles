@@ -176,25 +176,8 @@ function wttr_forecast() {
 }
 
 function wttr() {
-    # change Paris to your default location
+    # change Palo Alto to your default location
     local request="wttr.in/${1-Palo Alto}?format=3"
     [ "$(tput cols)" -lt 125 ] && request+='?n'
     curl -H "Accept-Language: ${LANG%_*}" --compressed "$request"
-}
-
-# # Current weather condition
-# function wttr() {
-#    curl "wttr.in/$1?format=3"
-# }
-
-# AOSP
-function adbr() {
-	adb root
-	adb disable-verity
-	adb remount
-}
-
-function adbss() {
-	adb shell stop
-	adb shell start
 }

@@ -1,0 +1,22 @@
+# AOSP
+function adbr() {
+	adb root
+	adb disable-verity
+	adb remount
+}
+
+function adbss() {
+	adb root
+	adb shell stop
+	adb shell start
+}
+
+alias ass=adbss
+
+function adbfb() {
+	adb reboot fastboot
+}
+
+function adb_dump() {
+	adb shell dumpsys package $1 | grep ${2-versionName}
+}

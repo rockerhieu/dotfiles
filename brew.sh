@@ -123,6 +123,9 @@ brew cask install openkey
 # Install Android SDK
 brew install android-sdk
 brew install android-ndk
+yes | sdkmanager --licenses
+brew tap dart-lang/dart
+brew install dart
 
 # Remove outdated versions from the cellar.
 brew cleanup
