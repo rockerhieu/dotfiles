@@ -126,6 +126,7 @@ brew install android-ndk
 yes | sdkmanager --licenses
 brew tap dart-lang/dart
 brew install dart
+brew install apktool
 
 # Remove outdated versions from the cellar.
 brew cleanup
