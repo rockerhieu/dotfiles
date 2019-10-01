@@ -181,3 +181,22 @@ function wttr() {
     [ "$(tput cols)" -lt 125 ] && request+='?n'
     curl -H "Accept-Language: ${LANG%_*}" --compressed "$request"
 }
+
+function origin() {
+	__t=$(which "$1")
+	if [[ -L "$__t" ]]; then
+		__t=$(readlink "$__t")
+	fi
+	echo $__t
+	unset __t
+}
+
+function origind() {
+	__t=$(origin "$1")
+	echo $(dirname "$__t")
+	unset __t
+}
+
+function godir() {	
+	cd $(origind "$1")
+}
