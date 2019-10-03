@@ -194,6 +194,9 @@
 [url "git://gist.github.com/"]
 
 	insteadOf = "gist:"
+[user]
+	name = Hieu
+	email = hieu@essential.com
 [gpg]
 	program = gpg
 [difftool "sourcetree"]
