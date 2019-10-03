@@ -94,7 +94,7 @@
 [core]
 
 	# Use custom `.gitignore` and `.gitattributes`
-	excludesfile = /Users/hieu/.gitignore
+	excludesfile = ~/.gitignore
 	attributesfile = ~/.gitattributes
 
 	# Treat spaces before tabs and all kinds of trailing whitespace as an error
@@ -143,6 +143,7 @@
 
 	# https://help.github.com/articles/signing-commits-using-gpg/
 	gpgsign = false
+	template = ~/.stCommitMsg
 
 [diff]
 
@@ -193,9 +194,6 @@
 [url "git://gist.github.com/"]
 
 	insteadOf = "gist:"
-[user]
-	name = Hieu
-	email = hieu@essential.com
 [gpg]
 	program = gpg
 [difftool "sourcetree"]

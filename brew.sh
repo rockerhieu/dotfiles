@@ -48,6 +48,7 @@ brew install tmux
 brew install reattach-to-user-namespace
 #brew install php
 brew install gmp
+brew install thefuck
 
 # Install font tools.
 brew tap bramstein/webfonttools

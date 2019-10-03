@@ -1,1 +1,4 @@
 source ~/.imports
+
+# Install fuck by running .macos or install manually with `brew install thefuck`
+eval $(thefuck --alias)
