@@ -86,6 +86,8 @@
 
 	# Show diff of a commit
 	details = log -n1 -p --format=fuller
+
+	sha = rev-parse HEAD
 [apply]
 
 	# Detect whitespace errors when applying a patch
