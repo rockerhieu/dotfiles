@@ -90,7 +90,22 @@
 	# Show diff of a commit
 	details = log -n1 -p --format=fuller
 
+	# Return current commit hash
 	sha = rev-parse HEAD
+
+	# List all things I did yesterday
+	standup = !git log \
+			--author=$USER \
+			--since='9am yesterday' \
+			--all \
+			--format=%s
+
+	lazy-standup = !git standup | say
+
+	which = !git branch | grep -i
+
+	lucky = !sh -c 'git checkout $(git which $1 -m1)' -
+
 [apply]
 
 	# Detect whitespace errors when applying a patch
