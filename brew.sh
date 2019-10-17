@@ -120,6 +120,8 @@ brew cask install musescore
 brew cask install folx
 brew cask install caffeine
 brew cask install openkey
+brew cask install kap
+brew cask install itsycal
 
 # Install Android SDK
 brew install android-sdk
