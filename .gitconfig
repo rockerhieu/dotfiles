@@ -1,3 +1,6 @@
+[include]
+    path = .gitconfig.local
+
 [alias]
 
 	# View abbreviated SHA, description, and history graph of the latest 20 commits
@@ -196,14 +199,6 @@
 [url "git://gist.github.com/"]
 
 	insteadOf = "gist:"
-[user]
-	name = Hieu
-	email = hieu@essential.com
+
 [gpg]
 	program = gpg
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
