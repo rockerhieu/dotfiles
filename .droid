@@ -30,3 +30,12 @@ function logcat() {
         return 1
     fi
 }
+
+function adb_pkill() {
+	if [ $# -eq 1 ]; then
+        adb shell pkill -f "$1"
+    else
+        >&2 echo "Usage: adb_pkill PACKAGE_NAME"
+        return 1
+    fi
+}
