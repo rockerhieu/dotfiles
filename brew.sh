@@ -102,6 +102,9 @@ brew install tree
 brew install vbindiff
 brew install zopfli
 
+# for highlighting code
+brew install highlight
+
 # Install Apps
 brew cask install spectacle
 brew cask install flux
