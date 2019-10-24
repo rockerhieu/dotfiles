@@ -200,3 +200,21 @@ function origind() {
 function godir() {	
 	cd $(origind "$1")
 }
+
+function codelight() {
+  if [ -z "$2" ]
+    then src="pbpaste"
+  else
+    src="cat $2"
+  fi
+  $src | highlight -O rtf --syntax $1 --font Inconsolata --style solarized-dark --font-size 24 | pbcopy
+}
+
+function codedark() {
+  if [ -z "$2" ]
+    then src="pbpaste"
+  else
+    src="cat $2"
+  fi
+  $src | highlight -O rtf --syntax $1 --font Inconsolata --style solarized-light --font-size 24 | pbcopy
+}
