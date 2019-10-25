@@ -38,6 +38,9 @@
 	# State all changes, amend them to latest commit
 	aaa = !git aa && git amend
 
+	# Revert all change to remote
+	screwit = !git reset --hard @{u} && git clean -df
+
 	# Switch to a branch, creating it if necessary
 	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
