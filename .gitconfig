@@ -41,6 +41,9 @@
 	# Revert all change to remote
 	screwit = !git reset --hard @{u} && git clean -df
 
+	# Don't be panic, git reflog to the rescue
+	panic = reflog
+
 	# Switch to a branch, creating it if necessary
 	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
