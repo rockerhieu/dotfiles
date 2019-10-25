@@ -26,8 +26,17 @@
 	# Clone a repository including all submodules
 	c = clone --recursive
 
+	# Commit with a message
+	cm = commit -m
+
 	# Commit all changes
 	ca = !git add -A && git commit -av
+
+	# State all changes
+	aa = add -A
+
+	# State all changes, amend them to latest commit
+	aaa = !git aa && git amend
 
 	# Switch to a branch, creating it if necessary
 	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"

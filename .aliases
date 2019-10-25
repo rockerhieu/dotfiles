@@ -147,3 +147,6 @@ alias path='echo -e ${PATH//:/\\n}'
 
 # Return the number of CPU core
 alias nproc="sysctl -n hw.ncpu"
+
+# Shorthanded for git
+alias g=git
