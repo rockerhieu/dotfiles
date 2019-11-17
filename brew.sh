@@ -126,6 +126,7 @@ brew cask install caffeine
 brew cask install openkey
 brew cask install kap
 brew cask install itsycal
+brew cask install db-browser-for-sqlite
 
 # Install Android SDK
 brew install android-sdk
