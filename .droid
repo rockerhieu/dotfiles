@@ -5,6 +5,10 @@ function adbr() {
 	adb remount
 }
 
+function adbrb() {
+    adb shell reboot
+}
+
 function adbss() {
 	adb root
 	adb shell stop
