@@ -32,11 +32,17 @@
 	# Commit all changes
 	ca = !git add -A && git commit -av
 
+	# Checkout a commit
+	co = checkout
+
 	# State all changes
 	aa = add -A
 
 	# State all changes, amend them to latest commit
 	aaa = !git aa && git amend
+
+	# Revert change to original
+	r = checkout HEAD~1
 
 	# Revert all change to remote
 	screwit = !git reset --hard @{u} && git clean -df
@@ -234,7 +240,7 @@
 	program = gpg
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
