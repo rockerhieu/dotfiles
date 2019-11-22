@@ -106,27 +106,47 @@ brew install zopfli
 brew install highlight
 
 # Install Apps
+# window management
 brew cask install spectacle
+# adjust screen color to ease your eyes
 brew cask install flux
 brew cask install google-chrome
 brew cask install dropbox
 brew cask install slack
+# better terminal client for Mac
 brew cask install iterm2
+# gui client for git
 brew cask install sourcetree
+# android studio IDE
 brew cask install android-studio
+# spotify
 brew cask install spotify
+# visual studio code
 brew cask install visual-studio-code
+# torrent client
 brew cask install transmission
+# video player
 brew cask install vlc
+# app cleaner
 brew cask install appcleaner
+# vpn client
 brew cask install tunnelblick
+# edit and view music score
 brew cask install musescore
+# file download manager
 brew cask install folx
+# keep your mac awake
 brew cask install caffeine
+# Vietnamese keyboard
 brew cask install openkey
+# screen recorder
 brew cask install kap
+# calendar widget
 brew cask install itsycal
+# sqlite db browser
 brew cask install db-browser-for-sqlite
+# interactive tool to manipulate git history
+brew cask install gitup
 
 # Install Android SDK
 brew install android-sdk
