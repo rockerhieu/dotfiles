@@ -147,6 +147,8 @@ brew cask install itsycal
 brew cask install db-browser-for-sqlite
 # interactive tool to manipulate git history
 brew cask install gitup
+# gui tool for rar, zip, tar, 7z...
+brew cask install the-unarchiver
 
 # Install Android SDK
 brew install android-sdk
