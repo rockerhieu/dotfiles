@@ -82,6 +82,9 @@ brew install woff2
 #brew install xpdf
 #brew install xz
 
+# Node
+brew install node
+
 # Install other useful binaries.
 #brew install ack
 #brew install exiv2
