@@ -152,6 +152,8 @@ brew cask install db-browser-for-sqlite
 brew cask install gitup
 # gui tool for rar, zip, tar, 7z...
 brew cask install the-unarchiver
+# vysor
+brew cask install vysor
 
 # Install Android SDK
 brew install android-sdk
