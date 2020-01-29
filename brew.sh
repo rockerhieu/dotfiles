@@ -105,6 +105,9 @@ brew install tree
 brew install vbindiff
 brew install zopfli
 
+# code search
+brew install the_silver_searcher
+
 # for highlighting code
 brew install highlight
 
