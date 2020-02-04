@@ -8,7 +8,7 @@ current_dir=$(pwd)
 
 for file in \.*
 do
-	if [[ ("$file" = ".DS_Store") || ("$file" = ".") || ("$file" = "..") ]]; then
+	if [[ ("$file" = ".DS_Store") || ("$file" = ".") || ("$file" = "..") || ("$file" = ".git") ]]; then
 		echo "Skip $file"
 	else
 		if [[ ! -f "~/$file" ]]; then
