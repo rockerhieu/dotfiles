@@ -17,3 +17,6 @@ Thumbs.db
 .extra
 
 .vim/.netrwhist
+
+# Oh My ZSH
+.oh-my-zsh
