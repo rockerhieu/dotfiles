@@ -159,8 +159,8 @@ brew cask install the-unarchiver
 brew cask install vysor
 
 # Install Android SDK
-brew install android-sdk
-brew install android-ndk
+brew cask install android-sdk
+brew cask install android-ndk
 yes | sdkmanager --licenses
 brew tap dart-lang/dart
 brew install dart
