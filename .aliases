@@ -150,3 +150,6 @@ alias nproc="sysctl -n hw.ncpu"
 
 # Shorthanded for git
 alias g=git
+
+# Start a webserver
+alias simplehttpserver="python -m SimpleHTTPServer"
