@@ -159,9 +159,11 @@ brew cask install the-unarchiver
 brew cask install vysor
 
 # Install Android SDK
+brew cask install java
 brew cask install android-sdk
 brew cask install android-ndk
-yes | sdkmanager --licenses
+brew cask install android-studio
+touch ~/.android/repositories.cfg
 brew tap dart-lang/dart
 brew install dart
 brew install apktool
