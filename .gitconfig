@@ -108,16 +108,35 @@
 		fi \
 	}; f"
 
+	# Reset to remote branch
+    rr = "!f() { \
+		declare branch=\"$(git branch --show-current)\"; \
+		git fetch -p; \
+		git reset --hard origin/$branch; \
+    }; f"
+
+	# Reset current branch to $1 and cherry pick the top $2 commits
+	rrbb = "!f() { \
+		git fetch -p; \
+		declare n=$2; \
+		[[ -z \"$n\" ]] && n=1; \
+		declare commits=($(git rev-list --ancestry-path HEAD~\"$n\"..HEAD)); \
+		git reset --hard $1; \
+		for commit in \"${commits[@]}\"; do \
+		  git cherry-pick \"$commit\"  --allow-empty; \
+		done; \
+    }; f"
+
 	# Show diff of a commit
 	details = log -n1 -p --format=fuller
 
 	# Return current commit hash
 	sha = rev-parse HEAD
 
-	# List all things I did yesterday
+	# List all things I did last week
 	standup = !git log \
 			--author=$USER \
-			--since='9am yesterday' \
+			--since='last week' \
 			--all \
 			--format=%s
 
@@ -205,7 +224,7 @@
 
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
-	ff = true
+	ff = false
 
 [push]
 
@@ -216,6 +235,7 @@
 
 [pull]
 	ff = true
+	rebase = true
 
 # URL shorthands
 
