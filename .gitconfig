@@ -127,6 +127,9 @@
 		done; \
     }; f"
 
+	# Cherry pick a commit
+	cp = cherry-pick
+
 	# Show diff of a commit
 	details = log -n1 -p --format=fuller
 
@@ -267,3 +270,6 @@
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
+[user]
+	name = Hieu Hua
+	email = hhua@paloaltonetworks.com
