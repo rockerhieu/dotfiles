@@ -50,6 +50,15 @@
 	# Don't be panic, git reflog to the rescue
 	panic = reflog
 
+	# Revert to the last Nth (default to 2nd) action that you did
+	panik = "!f() { \
+		echo $1; \
+		declare n=$1; \
+		[[ -z \"$n\" ]] && n=2; \
+		declare commit=$(git reflog | head -\"$n\" | tail -1 | head -c 7); \
+		git reset --hard $commit; \
+    }; f"
+
 	# Switch to a branch, creating it if necessary
 	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
@@ -84,6 +93,9 @@
 
 	# Find commits by commit message
 	fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
+
+	# Fetch new changes
+	fp = "!git fetch --all -p"
 
 	# Remove branches that have already been merged with master
 	# a.k.a. ‘delete merged’
@@ -120,7 +132,7 @@
 		git fetch -p; \
 		declare n=$2; \
 		[[ -z \"$n\" ]] && n=1; \
-		declare commits=($(git rev-list --ancestry-path HEAD~\"$n\"..HEAD)); \
+		declare commits=($(git rev-list --reverse --ancestry-path HEAD~\"$n\"..HEAD)); \
 		git reset --hard $1; \
 		for commit in \"${commits[@]}\"; do \
 		  git cherry-pick \"$commit\"  --allow-empty; \
@@ -270,6 +282,4 @@
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
-[user]
-	name = Hieu Hua
-	email = hhua@paloaltonetworks.com
+
