@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-curl https://storage.googleapis.com/flutter_infra/releases/stable/macos/flutter_macos_1.17.0-stable.zip --output flutter_macos_1.17.0-stable.zip #--silent
-#wget https://storage.googleapis.com/flutter_infra/releases/stable/macos/flutter_macos_1.17.0-stable.zip
-unzip -q flutter_macos_1.17.0-stable.zip
-rm flutter_macos_1.17.0-stable.zip
-mkdir -p ~/Development/libraries
-mv flutter ~/Development/libraries/
-ln -s ~/Development/libraries/flutter/bin/flutter /usr/local/bin/flutter
+brew tap leoafarias/fvm
+brew install fvm
+fvm install 2.2.1
+fvm global 2.2.1
+ln -s ~/fvm/default/bin/flutter /usr/local/bin/flutter
 
 # accept all android licences
 yes | flutter doctor --android-licenses
