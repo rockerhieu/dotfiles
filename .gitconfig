@@ -29,6 +29,9 @@
 	# Commit with a message
 	cm = commit -m
 
+    # Empty commit with a message
+    cmm = commit --allow-empty -m
+
 	# Commit all changes
 	ca = !git add -A && git commit -av
 
@@ -137,6 +140,64 @@
 		for commit in \"${commits[@]}\"; do \
 		  git cherry-pick \"$commit\"  --allow-empty; \
 		done; \
+    }; f"
+
+    update-mrs = "!f() { \
+        local target_branch='master'; \
+        local origin_name='origin'; \
+        local rebase_first=false; \
+        local use_rebase=true; \
+        local push_changes=false; \
+        while getopts 't:o:rCp' opt; do \
+            case $opt in \
+                t) target_branch=$OPTARG;; \
+                o) origin_name=$OPTARG;; \
+                r) rebase_first=true;; \
+                C) use_rebase=false;; \
+                p) push_changes=true;; \
+            esac; \
+        done; \
+        shift $((OPTIND-1)); \
+        if [ $# -eq 0 ]; then \
+            local current_branch=$(git rev-parse --abbrev-ref HEAD); \
+            set -- \"$current_branch\"; \
+        fi; \
+        local merge_requests=(); \
+        local commits_to_cherry_pick=(); \
+        for arg in $@; do \
+            IFS='~' read -r branch num_commits <<< \"$arg\"; \
+            merge_requests+=(\"$branch\"); \
+            commits_to_cherry_pick+=(\"${num_commits:-1}\"); \
+        done; \
+        local original_branch=$(git rev-parse --abbrev-ref HEAD); \
+        if $push_changes; then \
+            for mr in ${merge_requests[@]}; do \
+                git push --force-with-lease $origin_name $mr; \
+            done; \
+        else \
+            git checkout ${merge_requests[0]}; \
+            if [ $rebase_first = true ]; then \
+				git fetch $origin_name; \
+                git reset --hard $origin_name/${merge_requests[0]}; \
+                git rebase $origin_name/$target_branch; \
+            fi; \
+            for i in ${!merge_requests[@]}; do \
+                if [ $i -eq 0 ]; then \
+                    continue; \
+                fi; \
+                current_mr=${merge_requests[$i]}; \
+                previous_mr=${merge_requests[$i-1]}; \
+                num_commits=${commits_to_cherry_pick[$i]}; \
+                git checkout $current_mr; \
+                if $use_rebase; then \
+                    git rebase $previous_mr; \
+                else \
+                    git reset --hard $previous_mr; \
+                    git cherry-pick $origin_name/$current_mr~$num_commits..$origin_name/$current_mr; \
+                fi; \
+            done; \
+        fi; \
+        git checkout $original_branch; \
     }; f"
 
 	# Cherry pick a commit
@@ -282,3 +343,8 @@
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
