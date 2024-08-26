@@ -230,7 +230,7 @@
 [core]
 
 	# Use custom `.gitignore` and `.gitattributes`
-	excludesfile = /Users/hieu/.gitignore_global
+	excludesfile = /Users/hhua/.gitignore_global
 	attributesfile = ~/.gitattributes
 
 	# Treat spaces before tabs and all kinds of trailing whitespace as an error
@@ -278,7 +278,7 @@
 [commit]
 
 	# https://help.github.com/articles/signing-commits-using-gpg/
-	gpgsign = false
+	gpgsign = true
 	template = ~/.stCommitMsg
 
 [diff]
@@ -337,6 +337,7 @@
 
 [gpg]
 	program = gpg
+	format = ssh
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
@@ -348,3 +349,9 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[user]
+	name = Hieu Hua
+	email = hhua@paloaltonetworks.com
+	signingkey = /Users/hhua/.ssh/id_rsa.pub
+[gpg "ssh"]
+	allowedSignersFile = /Users/hhua/.git_allowed_signers
