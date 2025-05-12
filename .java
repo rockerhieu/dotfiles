@@ -1,4 +1,4 @@
-required_jdks=(11 17)
+required_jdks=(11 17 21)
 default_jdk=17
 
 # Install each required JDK version if it's not already installed

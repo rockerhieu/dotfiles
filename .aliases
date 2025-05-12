@@ -153,3 +153,6 @@ alias g=git
 
 # Start a webserver
 alias simplehttpserver="python -m SimpleHTTPServer"
+
+# npm run
+alias npr="npm run"

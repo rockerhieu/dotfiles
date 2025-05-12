@@ -12,4 +12,8 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 export GOPATH=~/go
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
 source "$HOME/.cargo/env"
+source "$HOME/.local/bin/env"
