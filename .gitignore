@@ -3,6 +3,7 @@ dotfiles/.*.local
 dotfiles/.netrc
 dotfiles/.claude
 dotfiles/.antigen
+dotfiles/.config/nvim/undo
 
 **/*.zwc
 
