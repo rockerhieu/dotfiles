@@ -15,10 +15,13 @@
 _ai() {
     local prompt="$1"
     shift
-    local cmd="${AI_CLI_CMD:-claude}"
+    # Split AI_CLI_CMD into an array to support commands with arguments (e.g., "ccr code").
+    # This uses zsh-specific syntax for word splitting.
+    local -a cmd
+    cmd=(${(s: :)AI_CLI_CMD:-claude})
     local prompt_arg="${AI_CLI_PROMPT_ARG:--p}"
     
-    "$cmd" "$prompt_arg" "$prompt" "$@"
+    "${cmd[@]}" "$prompt_arg" "$prompt" "$@"
 }
 
 # Internal function for AI commands that may modify files or system state.
@@ -30,8 +33,16 @@ _ai_dangerously() {
     _ai "$prompt" "$tool_arg" "$@"
 }
 
+aiclaude() {
+  export AI_CLI_CMD="claude"
+}
+
+aigemini() {
+  export AI_CLI_CMD="ccr code"
+}
+
 # AI-powered git workflow
-alias aicommit='_ai_dangerously "Review staged changes, then create a commit. Make sure the commit message follow the project convention (if there is any)"'
+alias aicommit='_ai_dangerously "Review staged changes, then create a commit. Make sure the commit message follow the project convention, if there is any"'
 alias aireview='_ai "Review current git diff and suggest improvements before committing"'
 alias aipr='_ai "Create a pull request description based on the commits in this branch compared to main/master"'
 alias aimessage='_ai "Generate a commit message for staged changes but do not commit"'
@@ -87,6 +98,16 @@ aidoc() {
 }
 
 # Quick utilities
+ai() {
+    local prompt="$*"
+    if [[ -z "$prompt" ]]; then
+        echo "Usage: ai <prompt>"
+        echo "Example: ai 'what is the capital of France?'"
+        return 1
+    fi
+    _ai "$prompt"
+}
+
 aishell() {
     local task="$*"
     if [[ -z "$task" ]]; then
