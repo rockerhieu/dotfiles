@@ -29,3 +29,12 @@ fe() {
         ${EDITOR:-nvim} "${files[@]}"
     fi
 }
+
+# Copy into clipboard
+copy() {
+  if [ $# -eq 0 ]; then
+    echo "Error: No text provided to copy" >&2
+    return 1
+  fi
+  echo -n "$*" | pbcopy
+}

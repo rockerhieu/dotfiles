@@ -4,6 +4,9 @@ dotfiles/.netrc
 dotfiles/.claude
 dotfiles/.antigen
 dotfiles/.config/nvim/undo
+dotfiles/.config/gcloud
+dotfiles/.config/configstore
+dotfiles/.claude-code-router
 
 **/*.zwc
 

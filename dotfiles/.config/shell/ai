@@ -1,0 +1,125 @@
+# AI Shell Utilities
+#
+# This script provides a set of aliases and functions to interact with an AI CLI.
+# It can be configured to use different AI tools by setting the following
+# environment variables.
+#
+# - AI_CLI_CMD: The command for the AI tool (e.g., "gemini", "claude").
+#   Defaults to "claude".
+# - AI_CLI_PROMPT_ARG: The option for passing the prompt (e.g., "-p", "--prompt").
+#   Defaults to "-p".
+# - AI_CLI_TOOL_ARG: The option to grant tool-use permissions.
+#   Defaults to "--dangerously-skip-permissions".
+
+# Internal function for safe, read-only AI commands.
+_ai() {
+    local prompt="$1"
+    shift
+    local cmd="${AI_CLI_CMD:-claude}"
+    local prompt_arg="${AI_CLI_PROMPT_ARG:--p}"
+    
+    "$cmd" "$prompt_arg" "$prompt" "$@"
+}
+
+# Internal function for AI commands that may modify files or system state.
+_ai_dangerously() {
+    local prompt="$1"
+    shift
+    local tool_arg="${AI_CLI_TOOL_ARG:---dangerously-skip-permissions}"
+    
+    _ai "$prompt" "$tool_arg" "$@"
+}
+
+# AI-powered git workflow
+alias aicommit='_ai_dangerously "Review staged changes, then create a commit. Make sure the commit message follow the project convention (if there is any)"'
+alias aireview='_ai "Review current git diff and suggest improvements before committing"'
+alias aipr='_ai "Create a pull request description based on the commits in this branch compared to main/master"'
+alias aimessage='_ai "Generate a commit message for staged changes but do not commit"'
+
+# Code analysis and fixes
+alias aifix='_ai_dangerously "Fix any linting, type errors, or obvious bugs in the current directory"'
+
+aitest() {
+    local target="$*"
+    if [[ -z "$target" ]]; then
+        _ai_dangerously "Generate comprehensive tests for the current file or recent changes"
+    elif [[ -f "$target" ]]; then
+        _ai_dangerously "Generate comprehensive tests for this file: $target"
+    else
+        _ai_dangerously "Generate comprehensive tests for: $target"
+    fi
+}
+
+aiexplain() {
+    local target="$*"
+    if [[ -z "$target" ]]; then
+        echo "Usage: aiexplain <code/command/error>"
+        echo "Example: aiexplain 'git rebase -i'"
+        echo "Example: aiexplain src/utils.js"
+        echo "Example: aiexplain 'function calculateTotal'"
+        return 1
+    fi
+    _ai "Explain this code, command, or error message: $target"
+}
+
+aidebug() {
+    local issue="$*"
+    if [[ -z "$issue" ]]; then
+        echo "Usage: aidebug <error/issue description>"
+        echo "Example: aidebug 'TypeError: undefined is not a function'"
+        return 1
+    fi
+    _ai_dangerously "Help debug this error or issue: $issue"
+}
+
+# Documentation
+alias aireadme='_ai_dangerously "Generate or update README.md based on the current project structure"'
+
+aidoc() {
+    local target="$*"
+    if [[ -z "$target" ]]; then
+        _ai_dangerously "Generate or improve documentation for the current file/directory or recent git changes"
+    elif [[ -f "$target" ]]; then
+        _ai_dangerously "Generate or improve documentation for this file: $target"
+    else
+        _ai_dangerously "Generate or improve documentation for: $target"
+    fi
+}
+
+# Quick utilities
+aishell() {
+    local task="$*"
+    if [[ -z "$task" ]]; then
+        echo "Usage: aishell <task description>"
+        echo "Example: aishell 'find all JavaScript files modified today'"
+        return 1
+    fi
+    _ai "Suggest shell commands for this task: $task"
+}
+
+aiplan() {
+    local feature="$*"
+    if [[ -z "$feature" ]]; then
+        echo "Usage: aiplan <feature description>"
+        echo "Example: aiplan 'user authentication with JWT'"
+        return 1
+    fi
+    _ai "Create an implementation plan for this feature: $feature"
+}
+
+alias aisummary='_ai "Summarize the git changes from today and what was accomplished"'
+
+# Functions for more complex workflows
+ailog() {
+    local count=${1:-10}
+    git log --oneline -n "$count" | _ai "Summarize these recent commits in a readable format"
+}
+
+aibranch() {
+    local description="$*"
+    if [[ -z "$description" ]]; then
+        echo "Usage: aibranch <feature description>"
+        return 1
+    fi
+    _ai_dangerously "Create a git branch name for this feature: $description"
+}

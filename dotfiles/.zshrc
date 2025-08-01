@@ -45,5 +45,8 @@ source ~/.config/shell/dotfiles
 # Interactive shell functions
 source ~/.config/shell/functions
 
+# AI utilities
+source ~/.config/shell/ai
+
 # Local customizations (optional)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

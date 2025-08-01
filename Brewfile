@@ -17,6 +17,7 @@ brew "tmux"
 cask "docker"
 cask "visual-studio-code"
 cask "jetbrains-toolbox"
+cask "gcloud-cli"
 
 
 # Applications
