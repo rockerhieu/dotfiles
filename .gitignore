@@ -1,0 +1,17 @@
+# Private/machine-specific files (never commit these!)
+dotfiles/.*.local
+dotfiles/.netrc
+dotfiles/.claude
+dotfiles/.antigen
+
+**/*.zwc
+
+# SSH keys and certificates
+.ssh/
+.git_allowed_signers
+
+# History files
+.*_history
+
+# Python virtual env
+.venv

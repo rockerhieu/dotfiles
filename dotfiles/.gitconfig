@@ -1,0 +1,418 @@
+[include]
+    path = .gitconfig.local
+
+[alias]
+
+	# View abbreviated SHA, description, and history graph of the latest 20 commits
+	l = log --pretty=oneline -n 20 --graph --abbrev-commit
+
+	# View abbreviated history graph
+	lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%$
+    lg = !"git lg1"
+
+	# View the current working tree status using the short format
+	s = status -s
+
+	# Show the diff between the latest commit and the current state
+	d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+
+	# `git di $number` shows the diff between the state `$number` revisions ago and the current state
+	di = !"d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+
+	# Pull in remote changes for the current repository and all its submodules
+	p = pull --recurse-submodules
+
+	# Clone a repository including all submodules
+	c = clone --recursive
+
+	# Commit with a message
+	cm = commit -m
+
+	# Commit with a message, skip hooks
+	cmnv = commit -m --no-verify
+
+    # Empty commit with a message
+    cmm = commit --allow-empty -m
+
+	# Empty commit with a message, skip hooks
+    cmmnv = commit --allow-empty -m --no-verify
+
+	# Commit all changes
+	cam = !git add -A && git commit -avm
+
+	# Commit all changes, skip hooks
+	canv = !git add -A && git commit -av
+
+	# Checkout a commit
+	co = checkout
+
+	# State all changes
+	aa = add -A
+
+	# State all changes, amend them to latest commit
+	aaa = !git aa && git amend
+
+	# Revert change to original
+	r = checkout HEAD~1
+
+	# Revert all change to remote
+	screwit = !git reset --hard @{u} && git clean -df
+
+	# Don't be panic, git reflog to the rescue
+	panic = reflog
+
+	# Revert to the last Nth (default to 2nd) action that you did
+	panik = "!f() { \
+        echo $1; \
+        declare n=$1; \
+        [[ -z \"$n\" ]] && n=2; \
+        declare commit=$(git reflog | head -\"$n\" | tail -1 | head -c 7); \
+        git reset --hard $commit; \
+    }; f"
+
+	# Switch to a branch, creating it if necessary
+	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+
+	# Show verbose output about tags, branches or remotes
+	tags = tag -l
+	branches = branch -a
+	remotes = remote -v
+
+	# List aliases
+	aliases = config --get-regexp alias
+
+	# Amend the currently staged files to the latest commit
+	amend = commit --amend --reuse-message=HEAD
+
+	# Credit an author on the latest commit
+	credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+
+	# Interactive rebase with the given number of latest commits
+	reb = "!r() { git rebase -i HEAD~$1; }; r"
+
+	# Remove the old tag with this name and tag the latest commit with it.
+	retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r"
+
+	# Find branches containing commit
+	fb = "!f() { git branch -a --contains $1; }; f"
+
+	# Find tags containing commit
+	ft = "!f() { git describe --always --contains $1; }; f"
+
+	# Find commits by source code
+	fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f"
+
+	# Find commits by commit message
+	fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
+
+	# Fetch new changes
+	fp = "!git fetch --all -p"
+
+	# Remove branches that have already been merged with master
+	# a.k.a. ‘delete merged’
+	dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
+
+	# List contributors with number of commits
+	contributors = shortlog --summary --numbered
+
+	# Merge GitHub pull request on top of the current branch or,
+	# if a branch name is specified, on top of the specified branch
+	mpr = "!f() { \
+        declare currentBranch=\"$(git symbolic-ref --short HEAD)\"; \
+        declare branch=\"${2:-$currentBranch}\"; \
+        if [ $(printf \"%s\" \"$1\" | grep '^[0-9]\\+$' > /dev/null; printf $?) -eq 0 ]; then \
+        	git fetch origin refs/pull/$1/head:pr/$1 && \
+        	git checkout -B $branch && \
+        	git rebase $branch pr/$1 && \
+        	git checkout -B $branch && \
+        	git merge pr/$1 && \
+        	git branch -D pr/$1 && \
+        	git commit --amend -m \"$(git log -1 --pretty=%B)\n\nCloses #$1.\"; \
+        fi \
+	}; f"
+
+	# Reset to remote branch
+    rr = "!f() { \
+        declare branch=\"$(git branch --show-current)\"; \
+        git fetch -p; \
+        git reset --hard origin/$branch; \
+    }; f"
+
+	# Reset current branch to $1 and cherry pick the top $2 commits
+	rrbb = "!f() { \
+        git fetch -p; \
+        declare n=$2; \
+        [[ -z \"$n\" ]] && n=1; \
+        declare commits=($(git rev-list --reverse --ancestry-path HEAD~\"$n\"..HEAD)); \
+        git reset --hard $1; \
+        for commit in \"${commits[@]}\"; do \
+          git cherry-pick \"$commit\"  --allow-empty; \
+        done; \
+    }; f"
+
+    update-mrs = "!f() { \
+        local target_branch='master'; \
+        local origin_name='origin'; \
+        local rebase_first=false; \
+        local use_rebase=true; \
+        local push_changes=false; \
+        while getopts 't:o:rCp' opt; do \
+            case $opt in \
+                t) target_branch=$OPTARG;; \
+                o) origin_name=$OPTARG;; \
+                r) rebase_first=true;; \
+                C) use_rebase=false;; \
+                p) push_changes=true;; \
+            esac; \
+        done; \
+        shift $((OPTIND-1)); \
+        if [ $# -eq 0 ]; then \
+            local current_branch=$(git rev-parse --abbrev-ref HEAD); \
+            set -- \"$current_branch\"; \
+        fi; \
+        local merge_requests=(); \
+        local commits_to_cherry_pick=(); \
+        for arg in $@; do \
+            IFS='~' read -r branch num_commits <<< \"$arg\"; \
+            merge_requests+=(\"$branch\"); \
+            commits_to_cherry_pick+=(\"${num_commits:-1}\"); \
+        done; \
+        local original_branch=$(git rev-parse --abbrev-ref HEAD); \
+        if $push_changes; then \
+            for mr in ${merge_requests[@]}; do \
+                git push --force-with-lease $origin_name $mr; \
+            done; \
+        else \
+            git checkout ${merge_requests[0]}; \
+            if [ $rebase_first = true ]; then \
+                git fetch $origin_name; \
+                git reset --hard $origin_name/${merge_requests[0]}; \
+                git rebase $origin_name/$target_branch; \
+            fi; \
+            for i in ${!merge_requests[@]}; do \
+                if [ $i -eq 0 ]; then \
+                    continue; \
+                fi; \
+                current_mr=${merge_requests[$i]}; \
+                previous_mr=${merge_requests[$i-1]}; \
+                num_commits=${commits_to_cherry_pick[$i]}; \
+                git checkout $current_mr; \
+                if $use_rebase; then \
+                    git rebase $previous_mr; \
+                else \
+                    git reset --hard $previous_mr; \
+                    git cherry-pick $origin_name/$current_mr~$num_commits..$origin_name/$current_mr; \
+                fi; \
+            done; \
+        fi; \
+        git checkout $original_branch; \
+    }; f"
+
+	pto = "!f() { \
+        declare current_branch=$(git rev-parse --abbrev-ref HEAD); \
+        declare branch=$1; \
+        declare remote=$2; \
+        [[ -z \"$branch\" ]] && branch=$current_branch; \
+        [[ -z \"$remote\" ]] && remote=origin; \
+        git push -u $remote $branch; \
+    }; f"
+
+	ptonv = "!f() { \
+        declare current_branch=$(git rev-parse --abbrev-ref HEAD); \
+        declare branch=$1; \
+        declare remote=$2; \
+        [[ -z \"$branch\" ]] && branch=$current_branch; \
+        [[ -z \"$remote\" ]] && remote=origin; \
+        git push -u $remote $branch --no-verify; \
+    }; f"
+
+	# Cherry pick a commit
+	cp = cherry-pick
+
+	# Show diff of a commit
+	details = log -n1 -p --format=fuller
+
+	# Return current commit hash
+	sha = rev-parse HEAD
+
+	# List all things I did last week
+	standup = !git log \
+        	--author=$USER \
+        	--since='last week' \
+        	--all \
+        	--format=%s
+
+	lazy-standup = !git standup | say
+
+	which = !git branch | grep -i
+
+	lucky = !sh -c 'git checkout $(git which $1 -m1)' -
+
+	# Open current repo in Sourcetree
+	st = !stree
+
+[apply]
+
+	# Detect whitespace errors when applying a patch
+	whitespace = fix
+
+[core]
+
+	# Use custom `.gitignore` and `.gitattributes`
+	excludesfile = ~/.gitignore_global
+	attributesfile = ~/.gitattributes
+
+	# Treat spaces before tabs and all kinds of trailing whitespace as an error
+	# [default] trailing-space: looks for spaces at the end of a line
+	# [default] space-before-tab: looks for spaces before tabs at the beginning of a line
+	whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+
+	# Make `git rebase` safer on macOS
+	# More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
+	trustctime = false
+
+	# Prevent showing files whose names contain non-ASCII symbols as unversioned.
+	# http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
+	precomposeunicode = false
+
+	# Speed up commands involving untracked files such as `git status`.
+	# https://git-scm.com/docs/git-update-index#_untracked_cache
+	untrackedCache = true
+
+	# Use modern editor and pager
+	editor = nvim
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	light = false
+	line-numbers = true
+	syntax-theme = Solarized (dark)
+
+[color]
+
+	# Use colors in Git commands that are capable of colored output when
+	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
+	ui = auto
+
+[color "branch"]
+
+	current = yellow reverse
+	local = yellow
+	remote = green
+
+[color "diff"]
+
+	meta = yellow bold
+	frag = magenta bold # line info
+	old = red # deletions
+	new = green # additions
+
+[color "status"]
+
+	added = yellow
+	changed = green
+	untracked = cyan
+
+[commit]
+
+	# https://help.github.com/articles/signing-commits-using-gpg/
+	gpgsign = true
+	template = ~/.stCommitMsg
+
+[diff]
+
+	# Detect copies as well as renames
+	renames = copies
+
+[diff "bin"]
+
+	# Use `hexdump` to diff binary files
+	textconv = hexdump -v -C
+
+[help]
+
+	# Automatically correct and execute mistyped commands
+	autocorrect = 1
+
+[merge]
+
+	# Include summaries of merged commits in newly created merge commit messages
+	log = true
+	ff = false
+
+[push]
+
+	# https://git-scm.com/docs/git-config#git-config-pushdefault
+	default = simple
+	# Make `git push` push relevant annotated tags when pushing branches out.
+	followTags = true
+	# Automatically set up remote tracking for new branches
+	autoSetupRemote = true
+
+[pull]
+	ff = true
+	rebase = true
+
+[rebase]
+	autoStash = true
+	autoSquash = true
+
+[fetch]
+	prune = true
+
+[branch]
+	autosetupmerge = always
+	autosetuprebase = always
+
+[rerere]
+	enabled = true
+
+[init]
+	defaultBranch = main
+
+# URL shorthands
+
+[url "git@github.com:"]
+
+	insteadOf = "gh:"
+	pushInsteadOf = "github:"
+	pushInsteadOf = "git://github.com/"
+
+[url "git://github.com/"]
+
+	insteadOf = "github:"
+
+[url "git@gist.github.com:"]
+
+	insteadOf = "gst:"
+	pushInsteadOf = "gist:"
+	pushInsteadOf = "git://gist.github.com/"
+
+[url "git://gist.github.com/"]
+
+	insteadOf = "gist:"
+
+[gpg]
+	program = gpg
+	format = ssh
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path =
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+# User configuration is in .gitconfig.local
+[gpg "ssh"]
+	allowedSignersFile = ~/.git_allowed_signers
+[safe]
+	bareRepository = all

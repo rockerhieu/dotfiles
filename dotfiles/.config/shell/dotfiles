@@ -1,0 +1,172 @@
+# Dotfiles management functions
+
+# Find dotfiles directory by following symlinks
+dotfiles_dir() {
+    # Follow the symlink to find the actual dotfiles directory
+    if [[ -L ~/.zshrc ]]; then
+        dirname "$(readlink ~/.zshrc)"
+    elif [[ -L ~/.bashrc ]]; then
+        dirname "$(readlink ~/.bashrc)"
+    elif [[ -L ~/.bash_profile ]]; then
+        dirname "$(readlink ~/.bash_profile)"
+    else
+        echo "No dotfiles symlinks found" >&2
+        return 1
+    fi
+}
+
+# Adopt an existing dotfile into the repo (move from home to repo, create symlink)
+dotfiles_adopt() {
+    local file="$1"
+    local dotfiles_path="$(dotfiles_dir)"
+    
+    if [[ -z "$file" ]]; then
+        echo "Usage: dotfiles_adopt <filename>"
+        echo "Example: dotfiles_adopt .bashrc"
+        return 1
+    fi
+    
+    # Remove leading dot for storage
+    local storage_name="${file#.}"
+    local home_path="$HOME/$file"
+    local repo_path="$dotfiles_path/dotfiles/$storage_name"
+    
+    if [[ ! -f "$home_path" ]]; then
+        echo "❌ File $home_path does not exist"
+        return 1
+    fi
+    
+    if [[ -f "$repo_path" ]]; then
+        echo "❌ File already exists in repo: $repo_path"
+        return 1
+    fi
+    
+    echo "📥 Adopting $file into dotfiles repo..."
+    mv "$home_path" "$repo_path"
+    ln -sf "$repo_path" "$home_path"
+    echo "✅ Adopted $file -> $repo_path (symlinked back to home)"
+}
+
+# Unadopt a dotfile (restore from repo to standalone file)
+dotfiles_unadopt() {
+    local file="$1"
+    local dotfiles_path="$(dotfiles_dir)"
+    
+    if [[ -z "$file" ]]; then
+        echo "Usage: dotfiles_unadopt <filename>"
+        echo "Example: dotfiles_unadopt .bashrc"
+        return 1
+    fi
+    
+    local storage_name="${file#.}"
+    local home_path="$HOME/$file"
+    local repo_path="$dotfiles_path/dotfiles/$storage_name"
+    
+    if [[ ! -f "$repo_path" ]]; then
+        echo "❌ File not found in repo: $repo_path"
+        return 1
+    fi
+    
+    if [[ ! -L "$home_path" ]]; then
+        echo "❌ $home_path is not a symlink"
+        return 1
+    fi
+    
+    echo "📤 Unadopting $file from dotfiles repo..."
+    rm "$home_path"
+    cp "$repo_path" "$home_path"
+    rm "$repo_path"
+    echo "✅ Unadopted $file (copied from repo, removed from tracking)"
+}
+
+# Check status of all dotfiles (compare repo vs home)
+dotfiles_status() {
+    local dotfiles_path="$(dotfiles_dir)"
+    local dotfiles_src="$dotfiles_path/dotfiles"
+    
+    if [[ ! -d "$dotfiles_src" ]]; then
+        echo "❌ Dotfiles directory not found: $dotfiles_src"
+        return 1
+    fi
+    
+    echo "📊 Dotfiles Status Report"
+    echo "========================"
+    
+    # Check files in repo
+    for repo_file in "$dotfiles_src"/*; do
+        if [[ -f "$repo_file" ]]; then
+            local storage_name=$(basename "$repo_file")
+            local home_file
+            
+            # Determine home filename based on mappings
+            case "$storage_name" in
+                "zshrc") home_file="$HOME/.zshrc" ;;
+                "gitconfig") home_file="$HOME/.gitconfig" ;;
+                "gitignore_global") home_file="$HOME/.gitignore_global" ;;
+                "vimrc") home_file="$HOME/.vimrc" ;;
+                *) home_file="$HOME/.$storage_name" ;;
+            esac
+            
+            if [[ -L "$home_file" ]]; then
+                local link_target=$(readlink "$home_file")
+                if [[ "$link_target" = "$repo_file" ]]; then
+                    echo "✅ $storage_name -> properly symlinked"
+                else
+                    echo "⚠️  $storage_name -> symlinked to wrong target: $link_target"
+                fi
+            elif [[ -f "$home_file" ]]; then
+                if cmp -s "$repo_file" "$home_file"; then
+                    echo "⚠️  $storage_name -> exists but not symlinked (content matches)"
+                else
+                    echo "❌ $storage_name -> exists but not symlinked (content differs)"
+                fi
+            else
+                echo "❌ $storage_name -> missing from home directory"
+            fi
+        fi
+    done
+    
+    # Check for orphaned symlinks
+    echo ""
+    echo "🔍 Checking for orphaned dotfile symlinks..."
+    find "$HOME" -maxdepth 1 -name ".*" -type l | while read -r link; do
+        if [[ ! -e "$link" ]]; then
+            echo "💀 Broken symlink: $(basename "$link")"
+        fi
+    done
+}
+
+# List all managed dotfiles
+dotfiles_list() {
+    local dotfiles_path="$(dotfiles_dir)"
+    local dotfiles_src="$dotfiles_path/dotfiles"
+    
+    if [[ ! -d "$dotfiles_src" ]]; then
+        echo "❌ Dotfiles directory not found: $dotfiles_src"
+        return 1
+    fi
+    
+    echo "📝 Managed Dotfiles:"
+    for file in "$dotfiles_src"/*; do
+        if [[ -f "$file" ]]; then
+            echo "  - $(basename "$file")"
+        fi
+    done
+}
+
+# Show help for dotfiles functions
+dotfiles_help() {
+    echo "🏠 Dotfiles Management Functions"
+    echo "================================"
+    echo ""
+    echo "dotfiles_adopt <file>     - Move existing dotfile to repo and create symlink"
+    echo "dotfiles_unadopt <file>   - Remove dotfile from repo, restore as regular file"
+    echo "dotfiles_status           - Show sync status between repo and home directory"
+    echo "dotfiles_list             - List all managed dotfiles"
+    echo "dotfiles_help             - Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  dotfiles_adopt .bashrc"
+    echo "  dotfiles_unadopt .vimrc"
+    echo "  dotfiles_status"
+}

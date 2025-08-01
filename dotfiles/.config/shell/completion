@@ -1,0 +1,13 @@
+# Completion options
+setopt COMPLETE_ALIASES          # Complete aliases
+setopt ALWAYS_TO_END             # Move cursor to the end of a completed word
+setopt AUTO_MENU                 # Show completion menu on a successive tab press
+setopt AUTO_LIST                 # Automatically list choices on ambiguous completion
+setopt COMPLETE_IN_WORD          # Complete from both ends of a word
+
+# Other useful options
+setopt EXTENDED_GLOB             # Use extended globbing syntax
+
+autoload -Uz compinit
+compinit
+zstyle ':completion:*' menu select

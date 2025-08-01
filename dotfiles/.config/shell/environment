@@ -1,0 +1,21 @@
+# Environment variables
+export EDITOR=nvim
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export UV_NATIVE_TLS="true"
+export NODE_OPTIONS=--use-openssl-ca
+export DISABLE_TELEMETRY=1
+export DISABLE_ERROR_REPORTING=1
+export DISABLE_BUG_COMMAND=1
+
+# Privacy settings
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_INSECURE_REDIRECT=1
+export ADBLOCK=1
+export DO_NOT_TRACK=1
+
+# Disable telemetry for various tools
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export NEXT_TELEMETRY_DISABLED=1
+export GATSBY_TELEMETRY_DISABLED=1
+export ASTRO_TELEMETRY_DISABLED=1

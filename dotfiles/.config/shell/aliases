@@ -1,0 +1,63 @@
+# Shell aliases
+# Directory jumping
+alias ..2="cd ../.."
+alias ..3="cd ../../.."
+alias ..4="cd ../../../.."
+alias ..5="cd ../../../../.."
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~" # `cd` is probably faster to type though
+alias -- -="cd -"
+
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+
+# Git aliases
+alias g="git"
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gd='git diff'
+alias gco='git checkout'
+
+# Modern development tools
+alias vi="nvim"
+alias vim="nvim"
+alias stree="open -a SourceTree"
+
+# macOS specific aliases
+alias brewup='brew update && brew upgrade && brew cleanup'
+alias showfiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder'
+alias hidefiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder'
+
+# Hide/show all desktop icons (useful when presenting)
+alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
+alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
+
+# URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# Disable Spotlight
+alias spotoff="sudo mdutil -a -i off"
+# Enable Spotlight
+alias spoton="sudo mdutil -a -i on"
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec ${SHELL} -l"
+
+# Return the number of CPU core
+alias nproc="sysctl -n hw.ncpu"
+
+# Start a webserver
+alias simplehttpserver="python -m SimpleHTTPServer"
+
+# Disable Global Protect
+alias disablegp="launchctl unload /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*"
+# Enable Global Protect
+alias enablegp="launchctl load /Library/LaunchAgents/com.paloaltonetworks.gp.pangp*"

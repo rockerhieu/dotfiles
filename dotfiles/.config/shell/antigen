@@ -1,0 +1,21 @@
+# Antigen configuration for oh-my-zsh and plugins
+
+# Load antigen
+source ~/.antigen/antigen.zsh
+
+# Load the oh-my-zsh library
+antigen use oh-my-zsh
+
+# Load essential bundles only (for performance)
+antigen bundle git
+antigen bundle brew
+antigen bundle macos
+
+# Load external plugins
+antigen bundle zsh-users/zsh-completions
+antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-history-substring-search
+
+# Apply the configuration
+antigen apply

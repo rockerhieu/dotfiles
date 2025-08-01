@@ -1,0 +1,98 @@
+{
+  "defaults" : {
+    "alternateDefaultShortcuts" : false,
+    "almostMaximizeHeight" : {
+      "float" : 0
+    },
+    "almostMaximizeWidth" : {
+      "float" : 0
+    },
+    "gapSize" : {
+      "float" : 0
+    },
+    "hideMenubarIcon" : false,
+    "launchOnLogin" : true,
+    "subsequentExecutionMode" : 1,
+    "unsnapRestore" : 2,
+    "obtainWindowOnClick" : true,
+    "windowSnapping" : 3
+  },
+  "shortcuts" : {
+    "bottomHalf" : {
+      "keyCode" : 125,
+      "modifierFlags" : 1572864
+    },
+    "center" : {
+      "keyCode" : 8,
+      "modifierFlags" : 1572864
+    },
+    "leftHalf" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1572864
+    },
+    "rightHalf" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1572864
+    },
+    "topHalf" : {
+      "keyCode" : 126,
+      "modifierFlags" : 1572864
+    },
+    "maximize" : {
+      "keyCode" : 3,
+      "modifierFlags" : 1572864
+    },
+    "topLeft" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1179648
+    },
+    "topRight" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1179648
+    },
+    "bottomLeft" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1441792
+    },
+    "bottomRight" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1441792
+    },
+    "nextDisplay" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1835008
+    },
+    "previousDisplay" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1835008
+    },
+    "firstThird" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1310720
+    },
+    "centerThird" : {
+      "keyCode" : 125,
+      "modifierFlags" : 1310720
+    },
+    "lastThird" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1310720
+    },
+    "makeLarger" : {
+      "keyCode" : 124,
+      "modifierFlags" : 1966080
+    },
+    "makeSmaller" : {
+      "keyCode" : 123,
+      "modifierFlags" : 1966080
+    },
+    "undo" : {
+      "keyCode" : 6,
+      "modifierFlags" : 1572864
+    },
+    "redo" : {
+      "keyCode" : 6,
+      "modifierFlags" : 1835008
+    }
+  }
+}

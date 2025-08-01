@@ -1,0 +1,18 @@
+# Kill processes interactively
+fkill() {
+    local pid
+    pid=$(ps -ef | sed 1d | fzf -m --header "Select process(es) to kill" | awk '{print $2}')
+    if [[ -n "$pid" ]]; then
+        echo $pid | xargs kill -${1:-9}
+        echo "Killed process(es): $pid"
+    fi
+}
+
+# Search and edit files with preview
+fe() {
+    local files
+    IFS=$'\n' files=($(fzf --multi --preview 'bat --color=always --style=numbers --line-range=:300 {}' --header "Select file(s) to edit"))
+    if [[ -n "$files" ]]; then
+        ${EDITOR:-nvim} "${files[@]}"
+    fi
+}
