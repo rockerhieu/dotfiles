@@ -16,16 +16,6 @@ alias la='ls -A'
 alias l='ls -CF'
 alias grep='grep --color=auto'
 
-# Git aliases
-alias g="git"
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git pull'
-alias gd='git diff'
-alias gco='git checkout'
-
 # Modern development tools
 alias vi="nvim"
 alias vim="nvim"

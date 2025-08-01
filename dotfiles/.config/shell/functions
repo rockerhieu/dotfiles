@@ -1,3 +1,16 @@
+# Interactive git branch switcher with preview
+gbi() {
+    local branch
+    branch=$(git branch -a --color=always | grep -v '/HEAD\s' | sort |
+        fzf --ansi --multi --tac --preview-window right:70% \
+            --preview 'git log --oneline --graph --date=short --color=always --pretty="format:%C(auto)%cd %h%d %s" $(sed "s/.* //" <<< {}) | head -'$LINES |
+        sed 's/.* //' | sed 's#remotes/[^/]*/##')
+
+    if [[ -n "$branch" ]]; then
+        git checkout "$branch"
+    fi
+}
+
 # Kill processes interactively
 fkill() {
     local pid
