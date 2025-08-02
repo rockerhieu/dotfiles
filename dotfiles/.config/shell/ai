@@ -1,27 +1,113 @@
 # AI Shell Utilities
 #
-# This script provides a set of aliases and functions to interact with an AI CLI.
-# It can be configured to use different AI tools by setting the following
-# environment variables.
+# This script provides a comprehensive set of aliases and functions to interact 
+# with AI CLI tools for development workflows.
 #
+# Environment Variables:
 # - AI_CLI_CMD: The command for the AI tool (e.g., "gemini", "claude").
 #   Defaults to "claude".
 # - AI_CLI_PROMPT_ARG: The option for passing the prompt (e.g., "-p", "--prompt").
 #   Defaults to "-p".
 # - AI_CLI_TOOL_ARG: The option to grant tool-use permissions.
 #   Defaults to "--dangerously-skip-permissions".
+# - AI_TERMINAL_FORMAT: Set to "1" to enable terminal-friendly output formatting.
+#   Defaults to "1" (enabled).
+# - NO_COLOR: Set to any value to disable colored output (standard).
+#
+# Version: 2.0
+
+# Color support (if not disabled)
+# Check for standard NO_COLOR or legacy AI_DISABLE_COLORS
+if [[ -z "$NO_COLOR" && -z "$AI_DISABLE_COLORS" ]]; then
+    readonly AI_RED='\033[0;31m'
+    readonly AI_GREEN='\033[0;32m'
+    readonly AI_YELLOW='\033[1;33m'
+    readonly AI_BLUE='\033[0;34m'
+    readonly AI_NC='\033[0m' # No Color
+else
+    readonly AI_RED=''
+    readonly AI_GREEN=''
+    readonly AI_YELLOW=''
+    readonly AI_BLUE=''
+    readonly AI_NC=''
+fi
+
+# Configuration validation function
+_ai_validate_config() {
+    local -a cmd
+    if [[ -n "$ZSH_VERSION" ]]; then
+        # Use zsh-specific syntax for word splitting
+        cmd=(${(s: :)AI_CLI_CMD:-claude})
+    else
+        # Fallback for bash
+        IFS=' ' read -ra cmd <<< "${AI_CLI_CMD:-claude}"
+    fi
+    
+    if ! command -v "${cmd[1]}" >/dev/null 2>&1; then
+        echo -e "${AI_RED}Error: AI command '${cmd[1]}' not found in PATH${AI_NC}" >&2
+        echo -e "${AI_YELLOW}Available AI providers:${AI_NC}" >&2
+        echo "  - claude (requires 'claude' command)" >&2
+        echo "  - ccr code (requires 'ccr' command)" >&2
+        echo -e "${AI_YELLOW}Set AI_CLI_CMD to use a different provider${AI_NC}" >&2
+        return 1
+    fi
+    return 0
+}
+
+# Function to convert markdown to terminal-friendly format
+_ai_format_output() {
+    local use_formatting="${AI_TERMINAL_FORMAT:-1}"
+    
+    if [[ "$use_formatting" != "1" ]]; then
+        cat
+        return
+    fi
+    
+    # Simple markdown-to-terminal conversion with colors
+    sed -E \
+        -e 's/^### (.*)$/\n\x1b[1;33m\1\x1b[0m/g' \
+        -e 's/^## (.*)$/\n\x1b[1;33m\1\x1b[0m/g' \
+        -e 's/^# (.*)$/\n\x1b[1;33m\1\x1b[0m/g' \
+        -e 's/\*\*([^*]+)\*\*/\x1b[0;32m\1\x1b[0m/g' \
+        -e 's/\*([^*]+)\*/\x1b[0;34m\1\x1b[0m/g' \
+        -e 's/`([^`]+)`/\x1b[1;33m\1\x1b[0m/g' \
+        -e 's/^```[a-zA-Z0-9]*$//' \
+        -e 's/^```$//' \
+        -e 's/^\* /  \x1b[0;34m•\x1b[0m /g' \
+        -e 's/^- /  \x1b[0;34m•\x1b[0m /g' \
+        -e 's/^([0-9]+)\. /  \x1b[0;32m\1.\x1b[0m /g' \
+        -e 's/033\[[0-9;]*m//g'
+}
 
 # Internal function for safe, read-only AI commands.
 _ai() {
     local prompt="$1"
     shift
+    
+    # Validate configuration before proceeding
+    if ! _ai_validate_config; then
+        return 1
+    fi
+    
     # Split AI_CLI_CMD into an array to support commands with arguments (e.g., "ccr code").
-    # This uses zsh-specific syntax for word splitting.
     local -a cmd
-    cmd=(${(s: :)AI_CLI_CMD:-claude})
+    if [[ -n "$ZSH_VERSION" ]]; then
+        # Use zsh-specific syntax for word splitting
+        cmd=(${(s: :)AI_CLI_CMD:-claude})
+    else
+        # Fallback for bash
+        IFS=' ' read -ra cmd <<< "${AI_CLI_CMD:-claude}"
+    fi
     local prompt_arg="${AI_CLI_PROMPT_ARG:--p}"
     
-    "${cmd[@]}" "$prompt_arg" "$prompt" "$@"
+    # Add terminal-friendly formatting request if using Claude
+    local extra_args=()
+    if [[ "${cmd[1]}" == "claude" && "${AI_TERMINAL_FORMAT:-1}" == "1" ]]; then
+        extra_args+=(--append-system-prompt "Format your response for terminal display: use plain text, avoid markdown formatting, keep lines under 80 characters when possible, and use simple bullet points instead of markdown lists.")
+    fi
+    
+    echo -e "${AI_BLUE}🤖 Running AI query...${AI_NC}" >&2
+    "${cmd[@]}" "$prompt_arg" "$prompt" "${extra_args[@]}" "$@" | _ai_format_output
 }
 
 # Internal function for AI commands that may modify files or system state.
@@ -30,22 +116,36 @@ _ai_dangerously() {
     shift
     local tool_arg="${AI_CLI_TOOL_ARG:---dangerously-skip-permissions}"
     
+    echo -e "${AI_YELLOW}⚠️  Running AI command with tool permissions...${AI_NC}" >&2
     _ai "$prompt" "$tool_arg" "$@"
 }
 
 aiclaude() {
-  export AI_CLI_CMD="claude"
+    export AI_CLI_CMD="claude"
+    echo -e "${AI_GREEN}✓ Switched to Claude AI provider${AI_NC}" >&2
 }
 
 aigemini() {
-  export AI_CLI_CMD="ccr code"
+    export AI_CLI_CMD="gemini"
+    echo -e "${AI_GREEN}✓ Switched to Gemini AI provider${AI_NC}" >&2
+}
+
+# Terminal formatting control
+aiterminal() {
+    export AI_TERMINAL_FORMAT=1
+    echo -e "${AI_GREEN}✓ Enabled terminal-friendly output formatting${AI_NC}" >&2
+}
+
+airaw() {
+    export AI_TERMINAL_FORMAT=0
+    echo -e "${AI_YELLOW}✓ Disabled terminal formatting (raw output)${AI_NC}" >&2
 }
 
 # AI-powered git workflow
 alias aicommit='_ai_dangerously "Review staged changes, then create a commit. Make sure the commit message follow the project convention, if there is any"'
-alias aireview='_ai "Review current git diff and suggest improvements before committing"'
+alias aidiff='_ai "Review current git diff and suggest improvements before committing"'
 alias aipr='_ai "Create a pull request description based on the commits in this branch compared to main/master"'
-alias aimessage='_ai "Generate a commit message for staged changes but do not commit"'
+alias aimsg='_ai "Generate a commit message for staged changes but do not commit"'
 
 # Code analysis and fixes
 alias aifix='_ai_dangerously "Fix any linting, type errors, or obvious bugs in the current directory"'
@@ -128,7 +228,60 @@ aiplan() {
     _ai "Create an implementation plan for this feature: $feature"
 }
 
-alias aisummary='_ai "Summarize the git changes from today and what was accomplished"'
+alias aitoday='_ai "Summarize the git changes from today and what was accomplished"'
+
+aistatus() {
+    # Check if we're in a git repository
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        echo -e "${AI_RED}Error: Not in a git repository${AI_NC}" >&2
+        return 1
+    fi
+    
+    # Check for staged changes
+    local staged_changes
+    staged_changes=$(git diff --cached --name-only 2>/dev/null)
+    
+    # Check for unstaged changes
+    local unstaged_changes
+    unstaged_changes=$(git diff --name-only 2>/dev/null)
+    
+    # Check for untracked files
+    local untracked_files
+    untracked_files=$(git ls-files --others --exclude-standard 2>/dev/null)
+    
+    # If no changes at all, exit early
+    if [[ -z "$staged_changes" && -z "$unstaged_changes" && -z "$untracked_files" ]]; then
+        echo -e "${AI_GREEN}No changes to summarize - working directory is clean${AI_NC}"
+        return 0
+    fi
+    
+    # Build context for AI
+    local context="Summarize the following git changes:\n\n"
+    
+    if [[ -n "$staged_changes" ]]; then
+        context+="STAGED CHANGES (ready to commit):\n"
+        context+="$(git diff --cached --stat)\n\n"
+        context+="$(git diff --cached)\n\n"
+    fi
+    
+    if [[ -n "$unstaged_changes" ]]; then
+        context+="UNSTAGED CHANGES (modified but not staged):\n"
+        context+="$(git diff --stat)\n\n"
+        context+="$(git diff)\n\n"
+    fi
+    
+    if [[ -n "$untracked_files" ]]; then
+        context+="UNTRACKED FILES:\n"
+        echo "$untracked_files" | while read -r file; do
+            context+="- $file\n"
+        done
+        context+="\n"
+    fi
+    
+    context+="Please provide a concise summary of what changes have been made and what they accomplish."
+    
+    _ai "$context"
+}
 
 # Functions for more complex workflows
 ailog() {
@@ -143,4 +296,140 @@ aibranch() {
         return 1
     fi
     _ai_dangerously "Create a git branch name for this feature: $description"
+}
+
+# Enhanced git utilities
+aiconflict() {
+    if ! git status --porcelain | grep -q "^UU\|^AA\|^DD\|^AU\|^UA\|^UD\|^DU"; then
+        echo -e "${AI_RED}No merge conflicts detected${AI_NC}" >&2
+        return 1
+    fi
+    _ai_dangerously "Help resolve git merge conflicts in the current repository"
+}
+
+airefactor() {
+    local target="$*"
+    if [[ -z "$target" ]]; then
+        echo "Usage: airefactor <file/directory/description>"
+        echo "Example: airefactor src/components/Button.js"
+        echo "Example: airefactor 'extract common utility functions'"
+        return 1
+    fi
+    _ai_dangerously "Refactor this code to improve maintainability, performance, and readability: $target"
+}
+
+airevert() {
+    local commit_range="$*"
+    if [[ -z "$commit_range" ]]; then
+        echo "Usage: airevert <commit-hash|range>"
+        echo "Example: airevert abc123"
+        echo "Example: airevert HEAD~3..HEAD"
+        return 1
+    fi
+    _ai_dangerously "Help me safely revert these commits and understand the implications: $commit_range"
+}
+
+# Security and performance utilities
+aisec() {
+    local target="${1:-.}"
+    _ai_dangerously "Perform a security review of the code in: $target. Look for common vulnerabilities, insecure patterns, and suggest improvements"
+}
+
+aiperf() {
+    local target="${1:-.}"
+    _ai_dangerously "Analyze performance bottlenecks and suggest optimizations for: $target"
+}
+
+# Project utilities
+aiarch() {
+    _ai "Analyze the current project structure and suggest improvements for organization and scalability"
+}
+
+aideps() {
+    if [[ -f "package.json" ]]; then
+        _ai_dangerously "Review package.json dependencies and suggest updates, removals, or security fixes"
+    elif [[ -f "requirements.txt" ]]; then
+        _ai_dangerously "Review Python requirements and suggest updates or security fixes"
+    elif [[ -f "Cargo.toml" ]]; then
+        _ai_dangerously "Review Rust dependencies and suggest updates or improvements"
+    elif [[ -f "go.mod" ]]; then
+        _ai_dangerously "Review Go module dependencies and suggest updates or improvements"
+    else
+        echo -e "${AI_YELLOW}No recognized dependency file found${AI_NC}" >&2
+        echo "Supported files: package.json, requirements.txt, Cargo.toml, go.mod" >&2
+        return 1
+    fi
+}
+
+# Configuration and help utilities
+aiconfig() {
+    echo -e "${AI_BLUE}AI Shell Utilities Configuration:${AI_NC}"
+    echo "  AI_CLI_CMD: ${AI_CLI_CMD:-claude}"
+    echo "  AI_CLI_PROMPT_ARG: ${AI_CLI_PROMPT_ARG:--p}"
+    echo "  AI_CLI_TOOL_ARG: ${AI_CLI_TOOL_ARG:---dangerously-skip-permissions}"
+    echo "  AI_TERMINAL_FORMAT: ${AI_TERMINAL_FORMAT:-1} (1=enabled, 0=disabled)"
+    echo "  Colors: $([[ -n "$NO_COLOR" || -n "$AI_DISABLE_COLORS" ]] && echo "disabled" || echo "enabled")"
+    echo
+    echo -e "${AI_BLUE}Available AI providers:${AI_NC}"
+    echo "  claude - Use 'aiclaude' to switch"
+    echo "  gemini - Use 'aigemini' to switch"
+    echo
+    echo -e "${AI_BLUE}Format Control:${AI_NC}"
+    echo "  export AI_TERMINAL_FORMAT=0  - Disable terminal formatting"
+    echo "  export AI_TERMINAL_FORMAT=1  - Enable terminal formatting (default)"
+    echo
+    _ai_validate_config && echo -e "${AI_GREEN}✓ Current configuration is valid${AI_NC}" || echo -e "${AI_RED}✗ Current configuration has issues${AI_NC}"
+}
+
+aihelp() {
+    echo -e "${AI_BLUE}AI Shell Utilities - Available Commands:${AI_NC}"
+    echo
+    echo -e "${AI_YELLOW}Configuration:${AI_NC}"
+    echo "  aiconfig       - Show current configuration and validation status"
+    echo "  aiclaude       - Switch to Claude AI provider"
+    echo "  aigemini       - Switch to Gemini AI provider"
+    echo "  aiterminal     - Enable terminal-friendly output formatting"
+    echo "  airaw          - Disable formatting (raw markdown output)"
+    echo
+    echo -e "${AI_YELLOW}Basic Commands:${AI_NC}"
+    echo "  ai <prompt>    - Ask AI a question (read-only)"
+    echo "  aishell <task> - Get shell command suggestions"
+    echo "  aiexplain <x>  - Explain code, command, or error"
+    echo
+    echo -e "${AI_YELLOW}Git Workflow:${AI_NC}"
+    echo "  aicommit       - Review and commit staged changes"
+    echo "  aidiff         - Review current diff before committing"
+    echo "  aipr           - Generate pull request description"
+    echo "  aimsg          - Generate commit message (no commit)"
+    echo "  aibranch <desc>- Generate branch name"
+    echo "  aiconflict     - Help resolve merge conflicts"
+    echo "  airevert <ref> - Help safely revert commits"
+    echo "  ailog [count]  - Summarize recent commits"
+    echo "  aitoday        - Summarize today's changes"
+    echo "  aistatus       - Summarize staged and uncommitted changes"
+    echo
+    echo -e "${AI_YELLOW}Code Analysis:${AI_NC}"
+    echo "  aifix          - Fix linting/type errors"
+    echo "  aitest [file]  - Generate tests"
+    echo "  aidebug <issue>- Debug errors or issues"
+    echo "  airefactor <x> - Refactor code for better maintainability"
+    echo "  aisec [dir]    - Security code review"
+    echo "  aiperf [dir]   - Performance analysis"
+    echo
+    echo -e "${AI_YELLOW}Documentation:${AI_NC}"
+    echo "  aidoc [target] - Generate/improve documentation"
+    echo "  aireadme       - Generate/update README"
+    echo
+    echo -e "${AI_YELLOW}Project Management:${AI_NC}"
+    echo "  aiplan <feat>  - Create implementation plan"
+    echo "  aiarch         - Analyze project structure"
+    echo "  aideps         - Review dependencies"
+    echo
+    echo -e "${AI_YELLOW}Environment Variables:${AI_NC}"
+    echo "  AI_CLI_CMD           - AI command (default: claude)"
+    echo "  AI_CLI_PROMPT_ARG    - Prompt argument (default: -p)"
+    echo "  AI_CLI_TOOL_ARG      - Tool permissions arg"
+    echo "  AI_TERMINAL_FORMAT   - Terminal formatting (default: 1)"
+    echo "  NO_COLOR             - Disable colored output (standard)"
+    echo "  AI_DISABLE_COLORS    - Disable colored output (legacy)"
 }
